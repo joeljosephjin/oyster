@@ -114,12 +114,18 @@ class PEARLAgent(nn.Module):
 
     def compute_kl_div(self):
         ''' compute KL( q(z|c) || r(z) ) '''
+        # prior <- N(0, 1)
         prior = torch.distributions.Normal(ptu.zeros(self.latent_dim), ptu.ones(self.latent_dim))
+        # posteriors <- [N(z_mean1, sqrt(z_var1)), N(z_mean2, sqrt(z_var2)), ...]
         posteriors = [torch.distributions.Normal(mu, torch.sqrt(var)) for mu, var in zip(torch.unbind(self.z_means), torch.unbind(self.z_vars))]
+        # KL(N(zmu, zsigma), N(0,1))
         kl_divs = [torch.distributions.kl.kl_divergence(post, prior) for post in posteriors]
+        # sum(KLs)
         kl_div_sum = torch.sum(torch.stack(kl_divs))
+        # return the sums
         return kl_div_sum
 
+    # z_mean, z_var <- q(c)
     def infer_posterior(self, context):
         ''' compute q(z|c) as a function of input context and sample new z from it'''
         params = self.context_encoder(context)

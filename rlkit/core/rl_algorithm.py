@@ -141,23 +141,34 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
         '''
         meta-training loop
         '''
+        # it does nothing; pass
         self.pretrain()
+        # save epoch, explo_policy and train_env into a dictionary
         params = self.get_epoch_snapshot(-1)
+        # ??
         logger.save_itr_params(-1, params)
+        # ??
         gt.reset()
+        # ??
         gt.set_def_unique(False)
+        # ??
         self._current_path_builder = PathBuilder()
 
         # at each iteration, we first collect data from tasks, perform meta-updates, then try to evaluate
+        # ??
         for it_ in gt.timed_for(
                 range(self.num_iterations),
                 save_itrs=True,
         ):
+            # log start time, init explo_path, train_time and log epochs
             self._start_epoch(it_)
+            # ??
             self.training_mode(True)
+            # at the start of each iteration
             if it_ == 0:
                 print('collecting initial pool of data for train and eval')
                 # temp for evaluating
+                # 
                 for idx in self.train_tasks:
                     self.task_idx = idx
                     self.env.reset_task(idx)

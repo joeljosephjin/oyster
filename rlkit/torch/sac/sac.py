@@ -9,6 +9,8 @@ import rlkit.torch.pytorch_util as ptu
 from rlkit.core.eval_util import create_stats_ordered_dict
 from rlkit.core.rl_algorithm import MetaRLAlgorithm
 
+import wandb
+
 
 class PEARLSoftActorCritic(MetaRLAlgorithm):
     def __init__(
@@ -65,6 +67,8 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         self.sparse_rewards = sparse_rewards
         self.use_next_obs_in_context = use_next_obs_in_context
 
+        # agent: PEARLAgent(context_decoder, TanhGaussianPolicy(latent_dim): [s,z]->[a])
+        # qf1: [s,a,z]->[1], qf2: [s,a,z]->[1], vf: [s,z]->[1]
         self.qf1, self.qf2, self.vf = nets[1:]
         self.target_vf = self.vf.copy()
 
@@ -133,10 +137,14 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         # make method work given a single task index
         if not hasattr(indices, '__iter__'):
             indices = [indices]
+        # what do these batches contain tho?
         batches = [ptu.np_to_pytorch_batch(self.enc_replay_buffer.random_batch(idx, batch_size=self.embedding_batch_size, sequence=self.recurrent)) for idx in indices]
+        # context <- batches
         context = [self.unpack_batch(batch, sparse_reward=self.sparse_rewards) for batch in batches]
         # group like elements together
+        # unpack the whole thing
         context = [[x[i] for x in context] for i in range(len(context[0]))]
+        # concatenate the whole thing
         context = [torch.cat(x, dim=0) for x in context]
         # full context consists of [obs, act, rewards, next_obs, terms]
         # if dynamics don't change across tasks, don't include next_obs
@@ -149,10 +157,13 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
 
     ##### Training #####
     def _do_training(self, indices):
+        # i guess embedding means 'z'
         mb_size = self.embedding_mini_batch_size
+        # num_updates = len([minibatch1, minibatch2, minibatch3...])
         num_updates = self.embedding_batch_size // mb_size
 
         # sample context batch
+        # get contexts by sampling from replay_buffer
         context_batch = self.sample_context(indices)
 
         # zero out context and hidden encoder state
@@ -160,7 +171,11 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
 
         # do this in a loop so we can truncate backprop in the recurrent encoder
         for i in range(num_updates):
+            # use the i-th context each time
+            # from (i)th to (i+1)th mb_size batch
+            # c_i <- {c}
             context = context_batch[:, i * mb_size: i * mb_size + mb_size, :]
+            # this is the main training step
             self._take_step(indices, context)
 
             # stop backprop
@@ -176,61 +191,81 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         ptu.soft_update_from_to(self.vf, self.target_vf, self.soft_target_tau)
 
     def _take_step(self, indices, context):
+        a1=PEARLSoftActorCritic()
+        wandb.init(project="mrl-project", entity="joeljosephjin", config=vars(a1))
 
         num_tasks = len(indices)
 
         # data is (task, batch, feat)
+        # s,a,r,n_s,terms <- replay_buffer of tasks
         obs, actions, rewards, next_obs, terms = self.sample_sac(indices)
 
         # run inference in networks
+        # pi,z <- agent(s,c)
         policy_outputs, task_z = self.agent(obs, context)
+        # new_a-s, mu, sigma, log_pi
         new_actions, policy_mean, policy_log_std, log_pi = policy_outputs[:4]
 
         # flattens out the task dimension
+        # 2D state. get length and breadth for flattening the state value
         t, b, _ = obs.size()
-        obs = obs.view(t * b, -1)
-        actions = actions.view(t * b, -1)
-        next_obs = next_obs.view(t * b, -1)
+        # flatten all them (s, a, n_s) normally
+        obs = obs.view(t * b, -1); actions = actions.view(t * b, -1); next_obs = next_obs.view(t * b, -1)
 
         # Q and V networks
         # encoder will only get gradients from Q nets
-        q1_pred = self.qf1(obs, actions, task_z)
-        q2_pred = self.qf2(obs, actions, task_z)
+        # q_{1/2} = qfunction_{1/2}(s, a, z)
+        q1_pred = self.qf1(obs, actions, task_z); q2_pred = self.qf2(obs, actions, task_z)
+        # v = vfunction(s, z)
         v_pred = self.vf(obs, task_z.detach())
         # get targets for use in V and Q updates
         with torch.no_grad():
+            # target_v = target_v_function(n_s, z)
             target_v_values = self.target_vf(next_obs, task_z)
 
         # KL constraint on z if probabilistic
         self.context_optimizer.zero_grad()
         if self.use_information_bottleneck:
+            # compute KL( q(z|c) || r(z) )
             kl_div = self.agent.compute_kl_div()
+            # compute kl_loss from kl_div multiplied by a constant
             kl_loss = self.kl_lambda * kl_div
+            # backprop-ing thru the context i guess. i think it updates the q(z|c)
             kl_loss.backward(retain_graph=True)
 
         # qf and encoder update (note encoder does not get grads from policy or vf)
         self.qf1_optimizer.zero_grad()
         self.qf2_optimizer.zero_grad()
+        # flatten the rewards
         rewards_flat = rewards.view(self.batch_size * num_tasks, -1)
         # scale rewards for Bellman update
         rewards_flat = rewards_flat * self.reward_scale
+        # flatten the terms
         terms_flat = terms.view(self.batch_size * num_tasks, -1)
+        # calculate q target value using bellman update
         q_target = rewards_flat + (1. - terms_flat) * self.discount * target_v_values
+        # calculate q loss for both at the same time
         qf_loss = torch.mean((q1_pred - q_target) ** 2) + torch.mean((q2_pred - q_target) ** 2)
         qf_loss.backward()
+        # dunno what qf1 and qf2 are
         self.qf1_optimizer.step()
         self.qf2_optimizer.step()
+        # update q(z|c) i guess
         self.context_optimizer.step()
 
         # compute min Q on the new actions
+        # min_q <- _min_q(s, a, z)
         min_q_new_actions = self._min_q(obs, new_actions, task_z)
 
         # vf update
         v_target = min_q_new_actions - log_pi
+        #------update vf
         vf_loss = self.vf_criterion(v_pred, v_target.detach())
         self.vf_optimizer.zero_grad()
         vf_loss.backward()
         self.vf_optimizer.step()
+        #------update vf
+
         self._update_target_network()
 
         # policy update
@@ -241,6 +276,7 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
                 log_pi - log_policy_target
         ).mean()
 
+        #------update policy
         mean_reg_loss = self.policy_mean_reg_weight * (policy_mean**2).mean()
         std_reg_loss = self.policy_std_reg_weight * (policy_log_std**2).mean()
         pre_tanh_value = policy_outputs[-1]
@@ -253,6 +289,7 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         self.policy_optimizer.zero_grad()
         policy_loss.backward()
         self.policy_optimizer.step()
+        #------update policy
 
         # save some statistics for eval
         if self.eval_statistics is None:
@@ -292,6 +329,7 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
                 'Policy log std',
                 ptu.get_numpy(policy_log_std),
             ))
+            wandb.log(eval_statistics)
 
     def get_epoch_snapshot(self, epoch):
         # NOTE: overriding parent method which also optionally saves the env
