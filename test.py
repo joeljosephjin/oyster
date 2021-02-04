@@ -7,8 +7,8 @@ class A:
 		# a=A()
 		# print(vars(a))
 	def an(self):
-		a=A()
-		print(vars(a))
+		# a=A()
+		# print(vars(self))
 a = A()
 # print(vars(a))
 # f=A()

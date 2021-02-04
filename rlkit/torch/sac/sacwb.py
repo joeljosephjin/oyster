@@ -191,8 +191,7 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         ptu.soft_update_from_to(self.vf, self.target_vf, self.soft_target_tau)
 
     def _take_step(self, indices, context):
-        a1=PEARLSoftActorCritic()
-        wandb.init(project="mrl-project", entity="joeljosephjin", config=vars(a1))
+        wandb.init(project="mrl-project", entity="joeljosephjin", config=vars(self))
 
         num_tasks = len(indices)
 
