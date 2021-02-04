@@ -9,6 +9,8 @@ import rlkit.torch.pytorch_util as ptu
 from rlkit.core.eval_util import create_stats_ordered_dict
 from rlkit.core.rl_algorithm import MetaRLAlgorithm
 
+import wandb
+
 
 class PEARLSoftActorCritic(MetaRLAlgorithm):
     def __init__(
@@ -189,6 +191,8 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         ptu.soft_update_from_to(self.vf, self.target_vf, self.soft_target_tau)
 
     def _take_step(self, indices, context):
+        a1=PEARLSoftActorCritic()
+        wandb.init(project="mrl-project", entity="joeljosephjin", config=vars(a1))
 
         num_tasks = len(indices)
 
@@ -325,6 +329,7 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
                 'Policy log std',
                 ptu.get_numpy(policy_log_std),
             ))
+            wandb.log(eval_statistics)
 
     def get_epoch_snapshot(self, epoch):
         # NOTE: overriding parent method which also optionally saves the env
