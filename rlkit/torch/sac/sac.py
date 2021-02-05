@@ -247,7 +247,7 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         self.qf1_optimizer.step()
         self.qf2_optimizer.step()
         # update q(z|c) i guess
-        self.context_optimizer.step()
+        # self.context_optimizer.step()
 
         # compute min Q on the new actions
         # min_q <- _min_q(s, a, z)
