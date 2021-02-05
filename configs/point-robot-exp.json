@@ -1,9 +1,9 @@
 {
     "env_name": "point-robot",
-    "n_train_tasks": 4,
-    "n_eval_tasks": 1,
+    "n_train_tasks": 8,
+    "n_eval_tasks": 2,
     "env_params": {
-        "n_tasks": 5
+        "n_tasks": 10
     }
     ,
     "algo_params": {
