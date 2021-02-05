@@ -305,26 +305,26 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
             self.eval_statistics['Policy Loss'] = np.mean(ptu.get_numpy(
                 policy_loss
             ))
-            self.eval_statistics.update(create_stats_ordered_dict(
-                'Q Predictions',
-                ptu.get_numpy(q1_pred),
-            ))
-            self.eval_statistics.update(create_stats_ordered_dict(
-                'V Predictions',
-                ptu.get_numpy(v_pred),
-            ))
-            self.eval_statistics.update(create_stats_ordered_dict(
-                'Log Pis',
-                ptu.get_numpy(log_pi),
-            ))
-            self.eval_statistics.update(create_stats_ordered_dict(
-                'Policy mu',
-                ptu.get_numpy(policy_mean),
-            ))
-            self.eval_statistics.update(create_stats_ordered_dict(
-                'Policy log std',
-                ptu.get_numpy(policy_log_std),
-            ))
+            # self.eval_statistics.update(create_stats_ordered_dict(
+            #     'Q Predictions',
+            #     ptu.get_numpy(q1_pred),
+            # ))
+            # self.eval_statistics.update(create_stats_ordered_dict(
+            #     'V Predictions',
+            #     ptu.get_numpy(v_pred),
+            # ))
+            # self.eval_statistics.update(create_stats_ordered_dict(
+            #     'Log Pis',
+            #     ptu.get_numpy(log_pi),
+            # ))
+            # self.eval_statistics.update(create_stats_ordered_dict(
+            #     'Policy mu',
+            #     ptu.get_numpy(policy_mean),
+            # ))
+            # self.eval_statistics.update(create_stats_ordered_dict(
+            #     'Policy log std',
+            #     ptu.get_numpy(policy_log_std),
+            # ))
 
     def get_epoch_snapshot(self, epoch):
         # NOTE: overriding parent method which also optionally saves the env
