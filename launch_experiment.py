@@ -13,7 +13,8 @@ from rlkit.envs import ENVS
 from rlkit.envs.wrappers import NormalizedBoxEnv
 from rlkit.torch.sac.policies import TanhGaussianPolicy
 from rlkit.torch.networks import FlattenMlp, MlpEncoder, RecurrentEncoder
-from rlkit.torch.sac.sacwb import PEARLSoftActorCritic
+# from rlkit.torch.sac.sacwb import PEARLSoftActorCritic
+from rlkit.torch.sac.sac import PEARLSoftActorCritic
 from rlkit.torch.sac.agent import PEARLAgent
 from rlkit.launchers.launcher_util import setup_logger
 import rlkit.torch.pytorch_util as ptu
