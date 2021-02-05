@@ -1,19 +1,19 @@
 {
     "env_name": "point-robot",
-    "n_train_tasks": 8,
-    "n_eval_tasks": 2,
+    "n_train_tasks": 4,
+    "n_eval_tasks": 1,
     "env_params": {
-        "n_tasks": 10
+        "n_tasks": 5
     }
     ,
     "algo_params": {
-        "num_initial_steps": 20,
-        "num_steps_prior": 20,
+        "num_initial_steps": 10,
+        "num_steps_prior": 10,
         "num_steps_posterior": 0,
-        "num_extra_rl_steps_posterior": 20,
-        "num_train_steps_per_itr": 100,
-        "num_steps_per_eval": 6,
-        "max_path_length": 2,
+        "num_extra_rl_steps_posterior": 10,
+        "num_train_steps_per_itr": 50,
+        "num_steps_per_eval": 3,
+        "max_path_length": 1,
         "reward_scale": 100.0,
         "kl_lambda": 0.1
     }
