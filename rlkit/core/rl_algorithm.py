@@ -324,7 +324,8 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
         #     time.time() - self._epoch_start_time
         # ))
         # logger.log("Started Training: {0}".format(self._can_train()))
-        logger.pop_prefix()
+        # logger.pop_prefix()
+        pass
 
     ##### Snapshotting utils #####
     def get_epoch_snapshot(self, epoch):
