@@ -275,13 +275,13 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
             epoch_time = train_time + sample_time + eval_time
             total_time = gt.get_times().total
 
-            logger.record_tabular('Train Time (s)', train_time)
-            logger.record_tabular('(Previous) Eval Time (s)', eval_time)
-            logger.record_tabular('Sample Time (s)', sample_time)
-            logger.record_tabular('Epoch Time (s)', epoch_time)
-            logger.record_tabular('Total Train Time (s)', total_time)
+            # logger.record_tabular('Train Time (s)', train_time)
+            # logger.record_tabular('(Previous) Eval Time (s)', eval_time)
+            # logger.record_tabular('Sample Time (s)', sample_time)
+            # logger.record_tabular('Epoch Time (s)', epoch_time)
+            # logger.record_tabular('Total Train Time (s)', total_time)
 
-            logger.record_tabular("Epoch", epoch)
+            # logger.record_tabular("Epoch", epoch)
             logger.dump_tabular(with_prefix=False, with_timestamp=False)
         else:
             logger.log("Skipping eval for now.")
@@ -317,13 +317,13 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
         self._epoch_start_time = time.time()
         self._exploration_paths = []
         self._do_train_time = 0
-        logger.push_prefix('Iteration #%d | ' % epoch)
+        # logger.push_prefix('Iteration #%d | ' % epoch)
 
     def _end_epoch(self):
-        logger.log("Epoch Duration: {0}".format(
-            time.time() - self._epoch_start_time
-        ))
-        logger.log("Started Training: {0}".format(self._can_train()))
+        # logger.log("Epoch Duration: {0}".format(
+        #     time.time() - self._epoch_start_time
+        # ))
+        # logger.log("Started Training: {0}".format(self._can_train()))
         logger.pop_prefix()
 
     ##### Snapshotting utils #####
