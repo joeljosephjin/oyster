@@ -255,18 +255,18 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
                 )
             self._old_table_keys = table_keys
 
-            logger.record_tabular(
-                "Number of train steps total",
-                self._n_train_steps_total,
-            )
-            logger.record_tabular(
-                "Number of env steps total",
-                self._n_env_steps_total,
-            )
-            logger.record_tabular(
-                "Number of rollouts total",
-                self._n_rollouts_total,
-            )
+            # logger.record_tabular(
+            #     "Number of train steps total",
+            #     self._n_train_steps_total,
+            # )
+            # logger.record_tabular(
+            #     "Number of env steps total",
+            #     self._n_env_steps_total,
+            # )
+            # logger.record_tabular(
+            #     "Number of rollouts total",
+            #     self._n_rollouts_total,
+            # )
 
             times_itrs = gt.get_times().stamps.itrs
             train_time = times_itrs['train'][-1]

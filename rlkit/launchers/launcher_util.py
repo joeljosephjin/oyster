@@ -265,8 +265,8 @@ def setup_logger(
                                  base_log_dir=base_log_dir)
 
     if variant is not None:
-        logger.log("Variant:")
-        logger.log(json.dumps(dict_to_safe_json(variant), indent=2))
+        # logger.log("Variant:")
+        # logger.log(json.dumps(dict_to_safe_json(variant), indent=2))
         variant_log_path = osp.join(log_dir, variant_log_file)
         logger.log_variant(variant_log_path, variant)
 
