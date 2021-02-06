@@ -21,6 +21,12 @@ import rlkit.torch.pytorch_util as ptu
 from configs.default import default_config
 
 
+import random
+random.seed(0)
+torch.manual_seed(0)
+np.random.seed(0)
+
+
 def experiment(variant):
 
     # create multi-task environment and sample tasks

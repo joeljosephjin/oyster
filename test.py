@@ -1,15 +1,16 @@
-# a=A()
+import torch
+import numpy as np
+import random
+from test1 import f
 
-class A:
-	def __init__(self):
-		self.a=5
-		self.b=6
-		# a=A()
-		# print(vars(a))
-	def an(self):
-		# a=A()
-		# print(vars(self))
-a = A()
-# print(vars(a))
-# f=A()
-a.an()
+
+random.seed(0)
+torch.manual_seed(0)
+np.random.seed(0)
+
+# def f():
+	# return random.random()
+
+print(f())
+print(torch.rand(1).item())
+print(np.random.rand())
