@@ -166,7 +166,7 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
             self.training_mode(True)
             # at the start of each iteration
             if it_ == 0:
-                print('collecting initial pool of data for train and eval')
+                # print('collecting initial pool of data for train and eval')
                 # temp for evaluating
                 # 
                 for idx in self.train_tasks:
