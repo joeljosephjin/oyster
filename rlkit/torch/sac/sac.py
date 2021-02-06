@@ -288,23 +288,23 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         #------update policy
 
         # save some statistics for eval
-        if self.eval_statistics is None:
-            # eval should set this to None.
-            # this way, these statistics are only computed for one batch.
-            self.eval_statistics = OrderedDict()
-            if self.use_information_bottleneck:
-                z_mean = np.mean(np.abs(ptu.get_numpy(self.agent.z_means[0])))
-                z_sig = np.mean(ptu.get_numpy(self.agent.z_vars[0]))
-                self.eval_statistics['Z mean train'] = z_mean
-                self.eval_statistics['Z variance train'] = z_sig
-                self.eval_statistics['KL Divergence'] = ptu.get_numpy(kl_div)
-                self.eval_statistics['KL Loss'] = ptu.get_numpy(kl_loss)
+        # if self.eval_statistics is None:
+        #     # eval should set this to None.
+        #     # this way, these statistics are only computed for one batch.
+        #     self.eval_statistics = OrderedDict()
+        #     if self.use_information_bottleneck:
+        #         z_mean = np.mean(np.abs(ptu.get_numpy(self.agent.z_means[0])))
+        #         z_sig = np.mean(ptu.get_numpy(self.agent.z_vars[0]))
+        #         self.eval_statistics['Z mean train'] = z_mean
+        #         self.eval_statistics['Z variance train'] = z_sig
+        #         self.eval_statistics['KL Divergence'] = ptu.get_numpy(kl_div)
+        #         self.eval_statistics['KL Loss'] = ptu.get_numpy(kl_loss)
 
-            self.eval_statistics['QF Loss'] = np.mean(ptu.get_numpy(qf_loss))
-            self.eval_statistics['VF Loss'] = np.mean(ptu.get_numpy(vf_loss))
-            self.eval_statistics['Policy Loss'] = np.mean(ptu.get_numpy(
-                policy_loss
-            ))
+        #     self.eval_statistics['QF Loss'] = np.mean(ptu.get_numpy(qf_loss))
+        #     self.eval_statistics['VF Loss'] = np.mean(ptu.get_numpy(vf_loss))
+        #     self.eval_statistics['Policy Loss'] = np.mean(ptu.get_numpy(
+        #         policy_loss
+        #     ))
             # self.eval_statistics.update(create_stats_ordered_dict(
             #     'Q Predictions',
             #     ptu.get_numpy(q1_pred),
