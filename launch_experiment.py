@@ -208,6 +208,8 @@ def main(config, gpu, docker, debug):
         for train_step in range(algorithm.num_train_steps_per_itr):
             indices = np.random.choice(algorithm.train_tasks, algorithm.meta_batch)
             # training happens here
+
+            
             # algorithm._do_training(indices)
             # i guess embedding means 'z'
             mb_size = algorithm.embedding_mini_batch_size
