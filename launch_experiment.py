@@ -10,6 +10,7 @@ import json
 import torch
 
 from rlkit.core import logger
+import gtimer as gt
 
 # a lot of different stuff from different environments, big-ness necessary
 from rlkit.envs import ENVS
