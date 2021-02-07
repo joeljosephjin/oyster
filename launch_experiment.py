@@ -9,8 +9,11 @@ import click
 import json
 import torch
 
+# from rl_algo.py
 from rlkit.core import logger
 import gtimer as gt
+from rlkit.data_management.path_builder import PathBuilder
+
 
 # a lot of different stuff from different environments, big-ness necessary
 from rlkit.envs import ENVS
