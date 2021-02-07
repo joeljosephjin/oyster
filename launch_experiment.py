@@ -9,6 +9,8 @@ import click
 import json
 import torch
 
+from rlkit.core import logger
+
 # a lot of different stuff from different environments, big-ness necessary
 from rlkit.envs import ENVS
 # a lot of wrappers within wrappers, big-ness necessary
