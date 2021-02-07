@@ -207,7 +207,31 @@ def main(config, gpu, docker, debug):
         # Sample train tasks and compute gradient updates on parameters.
         for train_step in range(algorithm.num_train_steps_per_itr):
             indices = np.random.choice(algorithm.train_tasks, algorithm.meta_batch)
-            algorithm._do_training(indices)
+            # training happens here
+            # algorithm._do_training(indices)
+            # i guess embedding means 'z'
+            mb_size = algorithm.embedding_mini_batch_size
+            # num_updates = len([minibatch1, minibatch2, minibatch3...])
+            num_updates = algorithm.embedding_batch_size // mb_size
+
+            # sample context batch
+            # get contexts by sampling from replay_buffer
+            context_batch = algorithm.sample_context(indices)
+
+            # zero out context and hidden encoder state
+            algorithm.agent.clear_z(num_tasks=len(indices))
+
+            # do this in a loop so we can truncate backprop in the recurrent encoder
+            for i in range(num_updates):
+                # use the i-th context each time
+                # from (i)th to (i+1)th mb_size batch
+                # c_i <- {c}
+                context = context_batch[:, i * mb_size: i * mb_size + mb_size, :]
+                # this is the main training step
+                algorithm._take_step(indices, context)
+
+                # stop backprop
+                algorithm.agent.detach_z()
             algorithm._n_train_steps_total += 1
         gt.stamp('train')
 
