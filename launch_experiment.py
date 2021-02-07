@@ -228,7 +228,103 @@ def main(config, gpu, docker, debug):
                 # c_i <- {c}
                 context = context_batch[:, i * mb_size: i * mb_size + mb_size, :]
                 # this is the main training step
-                algorithm._take_step(indices, context)
+                # algorithm._take_step(indices, context)
+                num_tasks = len(indices)
+
+                # data is (task, batch, feat)
+                # s,a,r,n_s,terms <- replay_buffer of tasks
+                obs, actions, rewards, next_obs, terms = algorithm.sample_sac(indices)
+
+                # run inference in networks
+                # pi,z <- agent(s,c)
+                policy_outputs, task_z = algorithm.agent(obs, context)
+                # new_a-s, mu, sigma, log_pi
+                new_actions, policy_mean, policy_log_std, log_pi = policy_outputs[:4]
+
+                # flattens out the task dimension
+                # 2D state. get length and breadth for flattening the state value
+                t, b, _ = obs.size()
+                # flatten all them (s, a, n_s) normally
+                obs = obs.view(t * b, -1); actions = actions.view(t * b, -1); next_obs = next_obs.view(t * b, -1)
+
+                # Q and V networks
+                # encoder will only get gradients from Q nets
+                # q_{1/2} = qfunction_{1/2}(s, a, z)
+                q1_pred = algorithm.qf1(obs, actions, task_z); q2_pred = algorithm.qf2(obs, actions, task_z)
+                # v = vfunction(s, z)
+                v_pred = algorithm.vf(obs, task_z.detach())
+                # get targets for use in V and Q updates
+                with torch.no_grad():
+                    # target_v = target_v_function(n_s, z)
+                    target_v_values = algorithm.target_vf(next_obs, task_z)
+
+                # KL constraint on z if probabilistic
+                algorithm.context_optimizer.zero_grad()
+                if algorithm.use_information_bottleneck:
+                    # compute KL( q(z|c) || r(z) )
+                    kl_div = algorithm.agent.compute_kl_div()
+                    # compute kl_loss from kl_div multiplied by a constant
+                    kl_loss = algorithm.kl_lambda * kl_div
+                    # backprop-ing thru the context i guess. i think it updates the q(z|c)
+                    kl_loss.backward(retain_graph=True)
+
+                # qf and encoder update (note encoder does not get grads from policy or vf)
+                algorithm.qf1_optimizer.zero_grad()
+                algorithm.qf2_optimizer.zero_grad()
+                # flatten the rewards
+                rewards_flat = rewards.view(algorithm.batch_size * num_tasks, -1)
+                # scale rewards for Bellman update
+                rewards_flat = rewards_flat * algorithm.reward_scale
+                # flatten the terms
+                terms_flat = terms.view(algorithm.batch_size * num_tasks, -1)
+                # calculate q target value using bellman update
+                q_target = rewards_flat + (1. - terms_flat) * algorithm.discount * target_v_values
+                # calculate q loss for both at the same time
+                qf_loss = torch.mean((q1_pred - q_target) ** 2) + torch.mean((q2_pred - q_target) ** 2)
+                qf_loss.backward()
+                # dunno what qf1 and qf2 are
+                algorithm.qf1_optimizer.step()
+                algorithm.qf2_optimizer.step()
+                # update q(z|c) i guess
+                algorithm.context_optimizer.step()
+
+                # compute min Q on the new actions
+                # min_q <- _min_q(s, a, z)
+                min_q_new_actions = algorithm._min_q(obs, new_actions, task_z)
+
+                # vf update
+                v_target = min_q_new_actions - log_pi
+                #------update vf
+                vf_loss = algorithm.vf_criterion(v_pred, v_target.detach())
+                algorithm.vf_optimizer.zero_grad()
+                vf_loss.backward()
+                algorithm.vf_optimizer.step()
+                #------update vf
+
+                algorithm._update_target_network()
+
+                # policy update
+                # n.b. policy update includes dQ/da
+                log_policy_target = min_q_new_actions
+
+                policy_loss = (
+                        log_pi - log_policy_target
+                ).mean()
+
+                #------update policy
+                mean_reg_loss = algorithm.policy_mean_reg_weight * (policy_mean**2).mean()
+                std_reg_loss = algorithm.policy_std_reg_weight * (policy_log_std**2).mean()
+                pre_tanh_value = policy_outputs[-1]
+                pre_activation_reg_loss = algorithm.policy_pre_activation_weight * (
+                    (pre_tanh_value**2).sum(dim=1).mean()
+                )
+                policy_reg_loss = mean_reg_loss + std_reg_loss + pre_activation_reg_loss
+                policy_loss = policy_loss + policy_reg_loss
+
+                algorithm.policy_optimizer.zero_grad()
+                policy_loss.backward()
+                algorithm.policy_optimizer.step()
+                #------update policy
 
                 # stop backprop
                 algorithm.agent.detach_z()
