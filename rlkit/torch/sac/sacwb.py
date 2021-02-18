@@ -93,6 +93,8 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
             lr=context_lr,
         )
 
+        wandb.init(project="mrl-project", entity="joeljosephjin", config=vars(self))
+
     ###### Torch stuff #####
     @property
     def networks(self):
@@ -191,8 +193,6 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         ptu.soft_update_from_to(self.vf, self.target_vf, self.soft_target_tau)
 
     def _take_step(self, indices, context):
-        wandb.init(project="mrl-project", entity="joeljosephjin", config=vars(self))
-
         num_tasks = len(indices)
 
         # data is (task, batch, feat)

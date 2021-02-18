@@ -24,7 +24,8 @@ from rlkit.torch.sac.policies import TanhGaussianPolicy
 # also big
 from rlkit.torch.networks import FlattenMlp, MlpEncoder, RecurrentEncoder
 # the main file, but its too big too
-from rlkit.torch.sac.sac import PEARLSoftActorCritic
+# from rlkit.torch.sac.sac import PEARLSoftActorCritic
+from rlkit.torch.sac.sacwb import PEARLSoftActorCritic
 # mostly a network thing
 from rlkit.torch.sac.agent import PEARLAgent
 # it logs a lot o stuff; dont know if its even needed
