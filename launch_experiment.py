@@ -24,8 +24,8 @@ from rlkit.torch.sac.policies import TanhGaussianPolicy
 # also big
 from rlkit.torch.networks import FlattenMlp, MlpEncoder, RecurrentEncoder
 # the main file, but its too big too
-# from rlkit.torch.sac.sac import PEARLSoftActorCritic
-from rlkit.torch.sac.sacwb import PEARLSoftActorCritic
+from rlkit.torch.sac.sac import PEARLSoftActorCritic
+# from rlkit.torch.sac.sacwb import PEARLSoftActorCritic
 # mostly a network thing
 from rlkit.torch.sac.agent import PEARLAgent
 # it logs a lot o stuff; dont know if its even needed
@@ -53,7 +53,7 @@ def deep_update_dict(fr, to):
     return to
 
 @click.command()
-@click.argument('config', default=None)
+@click.argument('config', default='./configs/sparse-point-robot-exp.json')
 @click.option('--gpu', default=0)
 @click.option('--docker', is_flag=True, default=False)
 @click.option('--debug', is_flag=True, default=False)

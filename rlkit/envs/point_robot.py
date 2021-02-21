@@ -39,6 +39,11 @@ class PointEnv(Env):
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,))
         self.action_space = spaces.Box(low=-0.1, high=0.1, shape=(2,))
 
+        self.max_steps=None
+
+    def set_max_steps(self, max_steps):
+        self.max_steps=max_steps
+
     def reset_task(self, idx):
         ''' reset goal AND reset the agent '''
         self._goal = self.goals[idx]
@@ -53,6 +58,7 @@ class PointEnv(Env):
         return self._get_obs()
 
     def reset(self):
+        self.steps=0
         return self.reset_model()
 
     def _get_obs(self):
@@ -64,7 +70,11 @@ class PointEnv(Env):
         x -= self._goal[0]
         y -= self._goal[1]
         reward = - (x ** 2 + y ** 2) ** 0.5
-        done = False
+        self.steps+=1
+        done=False
+        if self.max_steps:
+            if self.steps > self.max_steps:
+                done = True
         ob = self._get_obs()
         return ob, reward, done, dict()
 

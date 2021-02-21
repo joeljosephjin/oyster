@@ -12,7 +12,7 @@ default_config = dict(
         randomize_tasks=True, # shuffle the tasks after creating them
     ),
     algo_params=dict(
-        meta_batch=16, # number of tasks to average the gradient across
+        meta_batch=2, # 16 # number of tasks to average the gradient across
         num_iterations=2, # 500 # number of data sampling / training iterates
         num_initial_steps=2000, # number of transitions collected per task before training
         num_tasks_sample=5, # number of randomly sampled tasks to collect data for each iteration
@@ -44,7 +44,7 @@ default_config = dict(
     ),
     util_params=dict(
         base_log_dir='output',
-        use_gpu=True,
+        use_gpu=True, # True
         gpu_id=0,
         debug=False, # debugging triggers printing and writes logs to debug directory
         docker=False, # TODO docker is not yet supported
