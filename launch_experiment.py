@@ -53,7 +53,7 @@ def deep_update_dict(fr, to):
     return to
 
 @click.command()
-@click.argument('config', default='./configs/sparse-point-robot-exp.json')
+@click.argument('config', default='./configs/sparse-point-robot.json')
 @click.option('--gpu', default=0)
 @click.option('--docker', is_flag=True, default=False)
 @click.option('--debug', is_flag=True, default=False)
