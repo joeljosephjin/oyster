@@ -12,8 +12,8 @@ default_config = dict(
         randomize_tasks=True, # shuffle the tasks after creating them
     ),
     algo_params=dict(
-        meta_batch=2, # 16 # number of tasks to average the gradient across
-        num_iterations=2, # 500 # number of data sampling / training iterates
+        meta_batch=16, # 16 # number of tasks to average the gradient across
+        num_iterations=100, # 500 # number of data sampling / training iterates
         num_initial_steps=2000, # number of transitions collected per task before training
         num_tasks_sample=5, # number of randomly sampled tasks to collect data for each iteration
         num_steps_prior=400, # number of transitions to collect per task with z ~ prior
