@@ -11,6 +11,7 @@ from rlkit.data_management.path_builder import PathBuilder
 from rlkit.samplers.in_place import InPlacePathSampler
 from rlkit.torch import pytorch_util as ptu
 
+import wandb
 
 class MetaRLAlgorithm(metaclass=abc.ABCMeta):
     def __init__(
@@ -255,18 +256,18 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
                 )
             self._old_table_keys = table_keys
 
-            # logger.record_tabular(
-            #     "Number of train steps total",
-            #     self._n_train_steps_total,
-            # )
-            # logger.record_tabular(
-            #     "Number of env steps total",
-            #     self._n_env_steps_total,
-            # )
-            # logger.record_tabular(
-            #     "Number of rollouts total",
-            #     self._n_rollouts_total,
-            # )
+            logger.record_tabular(
+                "Number of train steps total",
+                self._n_train_steps_total,
+            )
+            logger.record_tabular(
+                "Number of env steps total",
+                self._n_env_steps_total,
+            )
+            logger.record_tabular(
+                "Number of rollouts total",
+                self._n_rollouts_total,
+            )
 
             times_itrs = gt.get_times().stamps.itrs
             train_time = times_itrs['train'][-1]
@@ -275,11 +276,11 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
             epoch_time = train_time + sample_time + eval_time
             total_time = gt.get_times().total
 
-            # logger.record_tabular('Train Time (s)', train_time)
-            # logger.record_tabular('(Previous) Eval Time (s)', eval_time)
-            # logger.record_tabular('Sample Time (s)', sample_time)
-            # logger.record_tabular('Epoch Time (s)', epoch_time)
-            # logger.record_tabular('Total Train Time (s)', total_time)
+            logger.record_tabular('Train Time (s)', train_time)
+            logger.record_tabular('(Previous) Eval Time (s)', eval_time)
+            logger.record_tabular('Sample Time (s)', sample_time)
+            logger.record_tabular('Epoch Time (s)', epoch_time)
+            logger.record_tabular('Total Train Time (s)', total_time)
 
             # logger.record_tabular("Epoch", epoch)
             logger.dump_tabular(with_prefix=False, with_timestamp=False)
@@ -317,14 +318,14 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
         self._epoch_start_time = time.time()
         self._exploration_paths = []
         self._do_train_time = 0
-        # logger.push_prefix('Iteration #%d | ' % epoch)
+        logger.push_prefix('Iteration #%d | ' % epoch)
 
     def _end_epoch(self):
-        # logger.log("Epoch Duration: {0}".format(
-        #     time.time() - self._epoch_start_time
-        # ))
-        # logger.log("Started Training: {0}".format(self._can_train()))
-        # logger.pop_prefix()
+        logger.log("Epoch Duration: {0}".format(
+            time.time() - self._epoch_start_time
+        ))
+        logger.log("Started Training: {0}".format(self._can_train()))
+        logger.pop_prefix()
         pass
 
     ##### Snapshotting utils #####
@@ -475,6 +476,7 @@ class MetaRLAlgorithm(metaclass=abc.ABCMeta):
 
         for key, value in self.eval_statistics.items():
             logger.record_tabular(key, value)
+        wandb.log(self.eval_statistics)
         self.eval_statistics = None
 
         if self.render_eval_paths:

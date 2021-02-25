@@ -24,8 +24,8 @@ from rlkit.torch.sac.policies import TanhGaussianPolicy
 # also big
 from rlkit.torch.networks import FlattenMlp, MlpEncoder, RecurrentEncoder
 # the main file, but its too big too
-from rlkit.torch.sac.sac import PEARLSoftActorCritic
-# from rlkit.torch.sac.sacwb import PEARLSoftActorCritic
+# from rlkit.torch.sac.sac import PEARLSoftActorCritic
+from rlkit.torch.sac.sacwb import PEARLSoftActorCritic
 # mostly a network thing
 from rlkit.torch.sac.agent import PEARLAgent
 # it logs a lot o stuff; dont know if its even needed
@@ -160,6 +160,7 @@ def main(config, gpu, docker, debug):
     algorithm.pretrain()
     # save epoch, explo_policy and train_env into a dictionary
     params = algorithm.get_epoch_snapshot(-1)
+    
     # ??
     logger.save_itr_params(-1, params)
     # ??
@@ -211,7 +212,7 @@ def main(config, gpu, docker, debug):
             # training happens here
 
             
-            # algorithm._do_training(indices)
+            algorithm._do_training(indices)
             # i guess embedding means 'z'
             mb_size = algorithm.embedding_mini_batch_size
             # num_updates = len([minibatch1, minibatch2, minibatch3...])

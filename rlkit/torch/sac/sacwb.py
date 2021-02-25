@@ -178,6 +178,7 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
             # c_i <- {c}
             context = context_batch[:, i * mb_size: i * mb_size + mb_size, :]
             # this is the main training step
+#             print('outside takestep')
             self._take_step(indices, context)
 
             # stop backprop
@@ -193,6 +194,7 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         ptu.soft_update_from_to(self.vf, self.target_vf, self.soft_target_tau)
 
     def _take_step(self, indices, context):
+#         print('inside take_step')
         num_tasks = len(indices)
 
         # data is (task, batch, feat)
@@ -289,9 +291,11 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
         policy_loss.backward()
         self.policy_optimizer.step()
         #------update policy
-
+        
+#         print('dsf', self.eval_statistics)
         # save some statistics for eval
         if self.eval_statistics is None:
+#             print('been here sacwb 295')
             # eval should set this to None.
             # this way, these statistics are only computed for one batch.
             self.eval_statistics = OrderedDict()
@@ -328,6 +332,7 @@ class PEARLSoftActorCritic(MetaRLAlgorithm):
                 'Policy log std',
                 ptu.get_numpy(policy_log_std),
             ))
+#             print(self.eval_statistics)
             wandb.log(self.eval_statistics)
 
     def get_epoch_snapshot(self, epoch):
