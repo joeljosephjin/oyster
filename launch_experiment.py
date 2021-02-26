@@ -58,7 +58,7 @@ def deep_update_dict(fr, to):
 @click.option('--num_iterations', default=100)
 @click.option('--docker', is_flag=True, default=False)
 @click.option('--debug', is_flag=True, default=False)
-def main(config, gpu, docker, debug):
+def main(config, num_iterations, gpu, docker, debug):
 
     variant = default_config
     if config:
