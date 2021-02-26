@@ -304,7 +304,7 @@ def main(config, num_iterations, gpu, docker, debug):
                 vf_loss = algorithm.vf_criterion(v_pred, v_target.detach())
                 algorithm.vf_optimizer.zero_grad()
                 vf_loss.backward()
-                algorithm.vf_optimizer.step()
+                # algorithm.vf_optimizer.step()
                 #------update vf
 
                 algorithm._update_target_network()
