@@ -55,6 +55,7 @@ def deep_update_dict(fr, to):
 @click.command()
 @click.argument('config', default='./configs/point-robot-exp.json')
 @click.option('--gpu', default=0)
+@click.option('--num_iterations', default=100)
 @click.option('--docker', is_flag=True, default=False)
 @click.option('--debug', is_flag=True, default=False)
 def main(config, gpu, docker, debug):
@@ -65,6 +66,7 @@ def main(config, gpu, docker, debug):
             exp_params = json.load(f)
         variant = deep_update_dict(exp_params, variant)
     variant['util_params']['gpu_id'] = gpu
+    variant['algo_params']['num_iterations'] = num_iterations
 
     # create multi-task environment and sample tasks
     env = NormalizedBoxEnv(ENVS[variant['env_name']](**variant['env_params']))
