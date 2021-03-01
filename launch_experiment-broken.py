@@ -289,10 +289,10 @@ def main(config, num_iterations, gpu, docker, debug):
                 qf_loss = torch.mean((q1_pred - q_target) ** 2) + torch.mean((q2_pred - q_target) ** 2)
                 qf_loss.backward()
                 # dunno what qf1 and qf2 are
-                algorithm.qf1_optimizer.step()
-                algorithm.qf2_optimizer.step()
+                # algorithm.qf1_optimizer.step()
+                # algorithm.qf2_optimizer.step()
                 # update q(z|c) i guess
-                algorithm.context_optimizer.step()
+                # algorithm.context_optimizer.step()
 
                 # compute min Q on the new actions
                 # min_q <- _min_q(s, a, z)
