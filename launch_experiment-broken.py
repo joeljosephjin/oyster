@@ -214,7 +214,6 @@ def main(config, num_iterations, gpu, docker, debug):
             # training happens here
 
             
-            algorithm._do_training(indices)
             # i guess embedding means 'z'
             mb_size = algorithm.embedding_mini_batch_size
             # num_updates = len([minibatch1, minibatch2, minibatch3...])
